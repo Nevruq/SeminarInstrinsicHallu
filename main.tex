@@ -166,6 +166,20 @@ Therefore, based  the survey’s framework, LLMs should not be viewed as autonom
 
 % lack of domain-specific model trianing data common phenomenon S.12 Survey 2026
 %
+
+\subsection{Why is detection so challenging?}
+- Inter_annotation disagreement
+
+\section{Diagnosis instead of detection}
+As shown in section (Approaches) all approaches presented attempt to classify the output by either stating a probability or discrete label. However as (Halluzination subjecktiv) discussed labelling hallucination is not trivial and even humans do not always agree. While a single classification label can flag an erroreos output, it fails to give the full picture. It is thereby neither clear how the Model or System arrived at that decision and in the case of LLMs what reasoning lead to it nor is it clear which parts of the output causes the model to flag it as intrinsic hallucination. Operationalizing this task as a classification problem does not give the fine-grained feedback which would be essential for automated model correction or human guided developement. Similar to a medical diagnosis, a robust diagnostic framework should not mererly determine if an issue is present but also provide deeper insight aswell as its unterlying causes. Building upon this idea the paper (\cite{liu2025detection}, 2025) proposes to expand the hallucination detection task to a Diagnosis task. The Hallucinations diagnosis modell should therefore have the ability to examine the task across four dimensions. 
+-Detection: Accurately identifying if the generated content aligns with the source context.
+• Localization: Pinpointing the specific segments within the output that are hallucinatory.
+• Explainability: Explaining why the content is inconsistent.
+• Mitigation: Proposing corrections or directly generating revised content that aligns with the source, based on the localization and explanation.
+
+
+
+
 \section{General quesiotn}
 % Inwiefern macht es sinn den beiden intrisch und extr. als unterschiedliche probleme zu betrachten
 % kritieren für effektrive halluzinationserkennung
