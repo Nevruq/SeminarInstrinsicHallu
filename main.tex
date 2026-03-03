@@ -1,5 +1,3 @@
-\usepackage{standalone}
-
 \documentclass[
   seminar,        % seminar | bsc2019 | msc2019 | msc2019bio | mscwirtschaft2019
   english,        % ngerman | english
@@ -29,8 +27,6 @@
   Betreuer: Name
 }
 
-\newcommand{\TD}{\textbf{QuelleTODO}}
-
 \begin{document}
 
 \maketitle
@@ -38,21 +34,29 @@
 \clearpage
 
 
-\label{ch:introduction}
+%\label{ch:introduction}
 
 \section{Problemstellung}
-As AI is more and more incorporated in everydays life raising concers come up about the trustworthiness of these new technologies. Large Language Models like ChatGPT \TD, Llama and many more continuity produce text of high quality and grammatically indistinguishable to human ones. Such aspects seduce the user to believe the generate Texts must be factually correct and spreading of misinformation becomes more frequent. Motivated by these risks, recent work emphasizes the need for automated detection and evaluation methods, especially in scenarios where human verification is infeasible (e.g., cross-lingual use cases where users cannot reliably assess translation correctness). Experts often generalize the phenomenom of LLMs generating illogical or factually incorrect Content as "hallucination". 
+As AI is more and more incorporated in everydays life raising concers come up about the trustworthiness of these new technologies. Large Language Models like ChatGPT, Llama and many more continuity produce text of high quality and grammatically indistinguishable to human ones. Such aspects seduce the user to believe the generate Texts must be factually correct and spreading of misinformation becomes more frequent. Motivated by these risks, recent work emphasizes the need for automated detection and evaluation methods, especially in scenarios where human verification is infeasible (e.g., cross-lingual use cases where users cannot reliably assess translation correctness). Experts often generalize the phenomenom of LLMs generating illogical or factually incorrect Content as "hallucination". 
 
 % Motivation
 
 \subsection{detection instead of mitigation}
-An increasing part of recent research focuses on hallucination mitigation, meaning that at the time of generation the output is being checked for hallucination. However, in many practical cases this is not enough, due to inherent problems such as biases, knowledge gaps, and architecture which are fundamentally embedded in the model (\cite{Ji2023HallucinationSurvey}, S. 42:19). Hallucination detection is therefore an essential counterpart to hallucination mitigation as it is essential to guarantee post hoc verification and improving the trustworthiness of the systems.
+An increasing part of recent research focuses on hallucination mitigation, meaning that at the time of generation the output is being checked for hallucination. However, in many practical cases this is not enough, due to inherent problems such as biases, knowledge gaps, and architecture which are fundamentally embedded in the model (\cite{Ji2023HallucinationSurvey}, S. 42:19). Hallucination detection is therefore not merely a complement to mitigation but an independent research problem in its own right. Mitigation on one hand can leverage its internal states or generation process to intervene during generation.
+Detection on the other hand must solely reason post-hoc from the final input-output pair without access to the model that generated the text.
+Especially for the detection of hallucination, this means the detector must perform stable semantic consistency reasoning under no addional constraints. The following sections will show why detection is no trivial problem.
+
+
 \subsection{Seed Paper}
 The seed paper "Can LLMs Detect Intrinsic Hallucination in Paraphrasing and Machine Translation" (\cite{Gogoulou2025LLMHallucinationDetection}) takes this as its starting point. It investigates the inherent ability of different Large Language Models (LLMs) to detect intrinsic hallucination in the two scenarios, paraphrasing (PG) and machine translation (MT).
 The paper frames intrinsic hallucination as an entailment-based reasoning task and gives a comparison between LLMs and natural language infernce (NLI) models. Henceforth do the authors examine how model size, instruction-tuning, prompt language and prompt formulation impact the results. 
 
 \subsection{My Thesis}
 Building upon this work, the central thesis of this paper is to examine \textit{how well LLMs are suited for detecting intrinsic hallucinations and which model characteristics are required to perform this task effectively}. Furthermore, this paper discusses different approaches to intrinsic hallucination detection and briefly draws comparisons to its counterpart, extrinsic hallucination.
+
+\subsection{Motivation}
+To adress this central question, the paper will proceed in three steps. First, Section~\ref{sec:Definitions} explains the groundwork by defining the differences between intrinsic and extrinsic hallucination. 
+Second, Section~\ref{sec:approaches} reviews certain alternative detection approaches and discusses their differences and relevance for future development of hallucination detection systems. Third, Section~\ref{sec:discussion} will critically discuss whether LLMs are inherently capable for detecting intrinsic hallucination. Lastly will the paper conclude by arguing that what systems will provide the most hope for the future.
 
 \section{Definitions and theoretical basis}
 
@@ -74,6 +78,21 @@ Terms also often used in the context of hallucination are the factuality, faithf
 \newline
 On the contrary \textit{Factuality} refers to the quality of being actual or based on fact. However does the interpretation of the "fact" vary. Papers like (\cite{Dong2020MultiFactCorrection}) treat the source itself as the factual reference, effectively given the term "factuality" and "faithfulness" the same meaning. For both the seed paper and this thesis, we adopt the definition proposed by \cite{Maynez2020FaithfulnessFactuality}, which clearly distinguishes source knowledge from world knowledge. 
 \newline
+
+\subsection{Intrinsic Hallucination as a Non-Trivial problem}
+While intrinsic hallucination may appear to be a straightforward consistency check between source input and model output, both empirical evidence and theoretical analysis reveal that it constitutes a fundamentally non-trivial problem.
+On the empirical side, even for humans the JUDGE-BENCH (\cite{tan2024judgebench} study shows varying agreement not only between humans and models, but also among human annotator themself. The reports in Table 3 (pp.11-12), show that inter-annotator agreement (e.g. Krippendorff's alpha between humans vary strongly for certain tasks, indicating that even humans frequently disagree on properties like coherence, consistency and faithfulness. These results suggest that intrinsic hallucination may not be a binary or objectively trivial problem but often requires interpretation. Especially in cases of faithfulness and entailment it is not trivial to determine whether a text should be considered to contain hallucination or not. 
+
+ Furthermore, \cite{Ji2023HallucinationSurvey} note that the tolerance for what constitutes hallucination varies across tasks and domains: what is considered a faithful output in an open-domain dialogue system may be classified as intrinsic hallucination in a summarization or machine translation context. This definitional instability further compounds the difficulty of detection, as evaluation methods must be calibrated not only to a model's output but also to the norms of the specific task. Taken together, these considerations establish that intrinsic hallucination detection is neither a solved problem nor a simple classification task, but a challenge that operates simultaneously at the level of linguistic consistency, human judgment, and mathematical computability — a foundation that motivates the more detailed investigation carried out in the subsequent sections of this paper.
+
+ %%% ANPASSEN
+
+\subsection{Non trivial Annotaiton}
+It is important to note that detecting hallucination is not even trivial for humans. The JUDGE-BENCH (\cite{tan2024judgebench} study shows varying agreement not only between humans and models, but also among human annotator themself. The reports in Table 3 (pp.11-12), show that inter-annotator agreement (e.g. Krippendorff's alpha between humans vary strongly for certain tasks, indicating that even humans frequently disagree on properties like coherence, consistency and faithfulness. These results suggest that intrinsic hallucination may not be a binary or objectively trivial problem but often requires interpretation. Especially in cases of faithfulness and entailment it is not trivial to determine whether a text should be considered to contain hallucination or not. 
+
+Another important finding from the JUDGE-BENCH Paper is that LLM judges correlate more strongly with non-expert annotations rather that with expert judgments (\cite{Bavaresco2025JudgeBench}, S. 241). The authors offer an unsupported interpretation that non-experts may rely more on surface level features, whereas expert judges apply stricter criteria. Believing this thesis this discrepancy could raise concerns whether LLMs truly capture faithfulness or rather approximate surface believablity. However this claim requires more studying.
+
+
 \subsection{Methodische Einordnung}
 Due to this fundamental difference, intrinsic hallucinations are methodologically easier to evaluate than extrinsic hallucinations. Their detection relies on reasoning about textual consistency rather than knowledge verification, which makes faithfulness-oriented evaluation methods especially suitable. This is particularly relevant for conditional generation tasks such as summarization, paraphrasing, and machine translation, where the source input serves as a clear reference. Building on this observation, the following section focuses on intrinsic hallucination detection and examines how this problem is addressed in the seed paper Can LLMs Detect Intrinsic Hallucinations in Paraphrasing and Machine Translation?
 
@@ -81,12 +100,9 @@ Due to this fundamental difference, intrinsic hallucinations are methodologicall
 This section presents the seed paper "Can LLMs Detect Intrinsic Hallucination in Paraphrasing and Machine Translation?" as the core of this seminar paper. The paper focuses on intrinsic hallucination and explores whether LLMs can reliably detect such errors.
 \newline
 \subsection{Methods of paper}
-The seed paper formulates intrinsic hallucination as an entailment problem. Therefore is an output faithful if it is fully entailed by the source input and considered to contain hallucination if it contains additional or contradictory information not logically supported by the source. This formulation allows the detection task to be treated as a reasoning task rather than a knowledge verification problem. To conduct this approach, the authors construct a contrastive evaluation setup. Each instance consists of a source sentence and two candidate hypotheses, where always one is faithful and the other contains intrinsic hallucination. The model is then asked to determine which of the hypothesis is the hallucinated one. This setup ensures a controlled environment and allows for direct comparison across models. The methodology is based on the HalluciGen dataset \TD, which this paper is based upon and specially designed for intrinsic hallucination detection. The dataset convers two szenarios: paraphrasing (PG) and machine translation (MT). For the paraphrasing task, both source and hypotheses are in the same language while the translation task involves cross-lingual input and output. Additionally did the paper test different approaches to prompt the LLM. The study first analyzes the effect of prompt language, testing whether alignment between the prompt language and the language of the source and hypotheses influences performance. In addition, it systematically compares different prompting styles to evaluate how prompt formulation shapes detection accuracy. Prompts (1-3) contain the term "hallucination" while prompts (3-6) only contain a explicit definition of the concept. Prompt (4-6) on the other hand contain neither and uses formulations that describe hallucination. For example, Prompt 4 is formulated as:  \textit{"Given a source sentence (src) and two <scenario> hypotheses (hyp1 and hyp2), detect which one of the two logically contradicts the src."} (\cite{Gogoulou2025LLMHallucinationDetection}, S. 5). Lastly to optimize outputs and ensure proper formatting in addition to the prompts every model receives the same instructions. Models are instructed to only answer with either "hyp1" or "hyp2". \TD modelle die getestet wurden
+The seed paper formulates intrinsic hallucination as an entailment problem. Therefore is an output faithful if it is fully entailed by the source input and considered to contain hallucination if it contains additional or contradictory information not logically supported by the source. This formulation allows the detection task to be treated as a reasoning task rather than a knowledge verification problem. To conduct this approach, the authors construct a contrastive evaluation setup. Each instance consists of a source sentence and two candidate hypotheses, where always one is faithful and the other contains intrinsic hallucination. The model is then asked to determine which of the hypothesis is the hallucinated one. This setup ensures a controlled environment and allows for direct comparison across models. The methodology is based on the HalluciGen dataset TODO CITE, which this paper is based upon and specially designed for intrinsic hallucination detection. The dataset convers two szenarios: paraphrasing (PG) and machine translation (MT). For the paraphrasing task, both source and hypotheses are in the same language while the translation task involves cross-lingual input and output. Additionally did the paper test different approaches to prompt the LLM. The study first analyzes the effect of prompt language, testing whether alignment between the prompt language and the language of the source and hypotheses influences performance. In addition, it systematically compares different prompting styles to evaluate how prompt formulation shapes detection accuracy. Prompts (1-3) contain the term "hallucination" while prompts (3-6) only contain a explicit definition of the concept. Prompt (4-6) on the other hand contain neither and uses formulations that describe hallucination. For example, Prompt 4 is formulated as:  \textit{"Given a source sentence (src) and two <scenario> hypotheses (hyp1 and hyp2), detect which one of the two logically contradicts the src."} (\cite{Gogoulou2025LLMHallucinationDetection}, S. 5). Lastly to optimize outputs and ensure proper formatting in addition to the prompts every model receives the same instructions. Models are instructed to only answer with either "hyp1" or "hyp2". TDO CITE modelle die getestet wurden
 \subsection{Results of the Paper}
-SCHREIBE KEYFINDDINGGS VON DEM PAPER
-
-
-
+The experiments of \cite{Gogoulou2025LLMHallucinationDetection} yield three findings central to the thesis of this paper. First, LLM performance varies considerably across models, but the strongest models — META-LLAMA-3-70B-INSTRUCT and MIXTRAL-8X7B-INSTRUCT — achieve competitive F1 scores across both tasks and languages, demonstrating that large, instruction-tuned LLMs have a measurable inherent capacity for intrinsic hallucination detection. Second, and most critically for this thesis, the NLI baseline BGE-M3-ZEROSHOT-V2.0 achieves F1 scores of 0.90 and 0.92 on English and Swedish paraphrase respectively, outperforming all LLMs in the paraphrase scenario. This result challenges the assumption that LLMs are the superior or necessary choice for this task. Third, none of the four investigated factors — model size, instruction tuning, prompt language, and prompt formulation — can serve as a reliable predictor of performance, as their effects are inconsistent across model families. Taken together, these findings suggest that LLMs are \textit{conditionally} suited for intrinsic hallucination detection: capable under the right conditions, but neither universally reliable nor inherently superior to simpler entailment-based approaches.
 
 
 \section{Alternative Approaches to Instric Hallucination detection}
@@ -107,10 +123,8 @@ Another approach is self-consistency-based-detection. For example, (\cite{Manaku
 % GPT
 Semantic-based uncertainty methods aim to detect hallucinations by modeling uncertainty at the level of meaning rather than relying solely on token probabilities. Farquhar et al. [89] introduce semantic entropy as a measure for hallucination detection. Their approach generates multiple responses to the same prompt and clusters these outputs based on semantic similarity. Entropy is then calculated across the resulting semantic clusters. High semantic entropy indicates that the model’s responses differ substantially in meaning, suggesting a higher likelihood of hallucination. Conversely, low semantic entropy reflects consistent semantic content across generations and therefore greater reliability.
 
-
-
 \subsection{Embedding-based Detection}
-Embedding-based hallucination detectoin relies on measuring the semantic similiarity between output and the models input or source reference. The underlying assumption is that a faithful output should remain semantically close to its source. If the model generated output differs in the embedding space it could mean a semantic shift happend and therefore it contains hallucination. These approaches are typically further divided into seperate categories. \textbf{Similarity-based methods} compares sentences or embeddings of the source and output. \cite{Dale et al.} for example used cross-lingual embedding models such as LaBSE to detect hallucination in machine translation. \textbf{Gradient-based Methods} additionally incorparates the gradient of information measuring how sensentive outputs depend on the input. For example, (\cite{Hu2024Embedding}, S.1954) utilize embedding shifts with uncertainty signals to further imporove detection performance. Overall, embedding-based methods are useful for detecting semantic discrepancies which can be useful for Paraphrasing or Machine Translation tasks. 
+Embedding-based hallucination detectoin relies on measuring the semantic similiarity between output and the models input or source reference. The underlying assumption is that a faithful output should remain semantically close to its source. If the model generated output differs in the embedding space it could mean a semantic shift happend and therefore it contains hallucination. These approaches are typically further divided into seperate categories. \textbf{Similarity-based methods} compares sentences or embeddings of the source and output. (cite dale et al) for example used cross-lingual embedding models such as LaBSE to detect hallucination in machine translation. \textbf{Gradient-based Methods} additionally incorparates the gradient of information measuring how sensentive outputs depend on the input. For example, (\cite{Hu2024Embedding}, S.1954) utilize embedding shifts with uncertainty signals to further imporove detection performance. Overall, embedding-based methods are useful for detecting semantic discrepancies which can be useful for Paraphrasing or Machine Translation tasks. 
 
 \subsection{Prompt-based Approaches}
 Prompt-based hallucination detection utilizes the exceptional instruction-following capabilities of LLMs by specifically prompting them to evaluate the faithfulness of generated texts. Instead of solely using uncertainty signales or similarty scores, recent studies, like the seedpaper (\cite{Gogoulou2025LLMHallucinationDetection}, used LLMs as the evaluation instance. One key advantage of this approach is the flexiblity. Using LLMs requires no addional training and can generalize across several tasks and languages. \cite{Gogoulou2025LLMHallucinationDetection} showed that in a contrastive setting LLMs have the inherent ability to determine a hallucinated outcome. While this scenario may archieve decent results in the experiment using LLMs-as-the-Judge also brings its flaws. As shown does the effectivness heavily depend on the model, prompt formulation and the degree of instruction tuning. Additionally, the optimized experimental setup simplifies the generall task by given the LLM a choice between two possible hypothesis. This contrastive framing reduces
@@ -143,20 +157,54 @@ Building upon the idea of using LLMs as a detection method for intrinsisch hallu
 % Survey lays out for good Annotator it is important that they act similar to humans
 
 
-\subsection{LLM-as-Judge Perspective}
+\subsection{5.1 LLM-as-Judge Perspective}
 % HUMANS ARE BAD ANNOTNATOR / NLP STUDY
 
-\subsection{Non trivial Annotaiton}
-It is important to note that detecting hallucination is not even trivial for humans. The JUDGE-BENCH (\cite{tan2024judgebench} study shows varying agreement not only between humans and models, but also among human annotator themself. The reports in Table 3 (pp.11-12), show that inter-annotator agreement (e.g. Krippendorff's alpha between humans vary strongly for certain tasks, indicating that even humans frequently disagree on properties like coherence, consistency and faithfulness. These results suggest that intrinsic hallucination may not be a binary or objectively trivial problem but often requires interpretation. Especially in cases of faithfulness and entailment it is not trivial to determine whether a text should be considered to contain hallucination or not. 
+% Überarbeitet und differenziert
+Building upon the idea of using LLMs as a detection method for intrinsic hallucination, a more fundamental question arises: \textit{are LLMs inherently suited to detect hallucination?} To address this, it is useful to situate the detection task within the broader paradigm of LLM-as-a-Judge — while simultaneously recognizing where the two diverge.
 
-Another important finding from the JUDGE-BENCH Paper is that LLM judges correlate more strongly with non-expert annotations rather that with expert judgments (\cite{Bavaresco2025JudgeBench}, S. 241). The authors offer an unsupported interpretation that non-experts may rely more on surface level features, whereas expert judges apply stricter criteria. Believing this thesis this discrepancy could raise concerns whether LLMs truly capture faithfulness or rather approximate surface believablity. However this claim requires more studying.
+In the LLM-as-a-Judge paradigm, a model is asked to evaluate outputs according to criteria such as coherence, helpfulness, or overall quality. These judgments are often normative and subjective: there is no single ground truth, and reasonable evaluators may disagree. Intrinsic hallucination detection, by contrast, operates on a formally defined criterion — entailment — and produces a binary judgment. The question is not \textit{how good} an output is, but whether it is logically consistent with its source. This makes intrinsic hallucination detection a structurally more constrained, and in principle more tractable, special case of the Judge paradigm.
+
+This distinction matters for how we apply findings from the LLM-as-Judge literature. Insights about subjective quality assessment or open-ended evaluation do not transfer directly. However, structural weaknesses of LLMs as evaluation instances — particularly prompt sensitivity, sycophantic behavior, and the recursive problem of self-evaluation — are rooted in model architecture rather than task definition. They therefore apply to the detection role as well, regardless of whether the task is subjective or formally defined. The following subsections examine these structural properties and their implications for intrinsic hallucination detection specifically.
+%%%
+
+%%%
+Here the structural advantage of the intrinsic detection task becomes relevant: since faithfulness is defined as entailment with respect to a given source, the evaluation does not require external world knowledge or subjective judgment. An LLM acting as a detector therefore operates in a more constrained space than a general-purpose judge — one where its semantic reasoning capabilities can be more directly tested. The question then shifts from whether LLMs can evaluate in general, to whether their entailment reasoning is reliable enough for this specific, formally grounded task.
 
 
-\subsection{Systemic biasis of LLMS}
+
+
+The detection of intrinsic hallucinations using LLMs, as investigated in the seedpaper (\cite{Gogoulou2025LLMHallucinationDetection}, 2025), can be viewed as a case of the broader LLM-as-a-Judge paradigm. At its core does LLM-as-a-Judge refer to the use of large language models as automated evaluators to access texts for criterias like quality, correctness or in our case faithfulness. The central appeal to use LLMs as evaluators lies in its ability to process diverse data types and provide easily scalable and flexiable assesments (\cite{Gu2025LLMJudgeSurvey}, 2025, S.2). Before the era of LLMs, evaluation of natural language processing was driven by human evaluations which were costly, slow and difficult to scale while automatic metrics such as BLEU or ROUGE provided consistency yet failed to properly capture deeper semantics. The increasing ability of LLMs to mimic human reasoning now enables for automated evaluation across a wide range of tasks and domains without the bottleneck of human annotation (\cite{Gu2025LLMJudgeSurvey}, 2025, S.2). 
+
+
+
+Another key advantage of LLMs lies in their broad generalization capabilites. Instruction-tuned LLMs have been trained on many diverse tasks and domains, allowing them to apply learned criterias across new tasks without requiring task-specific fine-tuning. (\cite{Gogoulou2025LLMHallucinationDetection}) showed that, a well-designed prompt can be sufficient to guide a model towards producing structured judgments in a contrastive detection task. This inherent ability to mimic human judgment in addition to the flexiable adaption to new tasks shows that LLMs are generally suited for annotation tasks. In how are they specifically suited for evaluating faithfulness ?
+
+
+However, despite these advantages, adopting LLMs as a replacement for human evaluators introduce a wide range of new challanges which can not be overlooked. One major concern of such systems is its reliability as it directly impacts the robustness, stability and credibility of the generated judgement. (\cite{Gu2025LLMJudgeSurvey}, 2025, p.6) therefore outlines the importance of ensuring reliablity and introduces a formal definition 
+
+
+
+
+\subsection{5.2 systematic biases rooted in training process}
+
+Systematic biases rooted in the training process. A further weakness stems from how LLMs are trained. (Alansari and Luqman, 2025, p. 8) identify two particularly relevant failure modes at the fine-tuning stage: capability misalignment, where models are trained to give confident answers even when their knowledge is insufficient, and sycophantic behavior, where models generate outputs that appear plausible and evaluator-pleasing rather than factually grounded. Both tendencies directly undermine the reliability of LLMs as hallucination detectors: a model trained to appear confident and coherent will systematically underreport uncertainty and may favor plausible-sounding outputs over faithful ones. This concern is reinforced by (Bavaresco et al., 2024, S. 241), who find that LLM judges correlate more strongly with non-expert human annotations than with expert judgments, suggesting that LLMs may be approximating surface believability rather than performing genuine faithfulness evaluation. 
+
+Prompt sensitivity as an instability indicator. The seedpaper (Gogoulou et al., 2025) provides direct empirical evidence of a further weakness: the sensitivity of LLM performance to prompt formulation. MIXTRAL-8X22B-INSTRUCT shows a standard deviation of up to 0.23 across prompt variations in the Swedish paraphrase scenario — a range so large it renders the model unreliable for this task. Notably, including the term "hallucination" in the prompt negatively impacts performance for several models, suggesting that the models' internal representations of the concept do not align consistently with its operational definition in the detection task. This prompt sensitivity is not a minor engineering concern: it reveals that LLM-based detection is not a stable, principled evaluation procedure but one whose results depend heavily on framing choices external to the model itself. (Alansari and Luqman, 2025, p. 1) arrive at a structurally similar conclusion from a broader perspective, noting that no single detection approach performs well under all circumstances and that the inconsistency in prompting techniques is itself a barrier to developing universal detection frameworks.
+
+
+
+
+\subsection{5.3 Theoretical Limitations}
 % LLMS können selber halluzinieren
-A deeper theoretical limitation emerges from the survey’s acknowledgment that LLM-as-a-Judge systems are themselves generative models subject to hallucination . Since an LLM judge relies on its internal knowledge representation, it may incorrectly classify a true statement as false due to outdated or incomplete knowledge, or conversely fail to detect a fabricated claim if it appears plausible within its learned distribution. This recursive vulnerability implies that LLMs cannot serve as infallible arbiters of truth; they remain probabilistic approximators of human-like reasoning.
 
-\subsection{Theoretical Limits}
+A recurring assumption in prompt-based hallucination detection is that LLMs, due to their broad semantic capabilites, are in reality well-suited to evaluate the faithfulness of a generated text. However, at a closer look at LLMs reveal multiple systematic flaws that could fundamentally impact reliable detection.
+
+The recursiv problem of self-evaluation. The most fundamental limiation with using LLMs as the hallucination detector is them being prone to same biases as the evaluate text itself. LLMs themself are generative probabilistic models and therefore susceptible to producing hallucinated content. (\cite{Banerjee2024LLMsHallucinate}, 2024, S. XX) argues, that hallucination is not an occasinal phenomena but an error which stems from the mathematical and logical structure of large language models in generell. Since LLMs work as an autoregressiv system, predicting the next token based on learned probability distributions and previous context, rather than learned truths, they inherently do not possess the ability to guarantee correctness. Henceforth if such a system is tasked to detect hallucination in an output, which is generated by itself or another model, a recursive problem emerges. 
+(\cite{Banerjee2024LLMsHallucinate}, 2024) goes further and demonstrates that hallucination is a structural problem, which exists at every stage of the LLM pipeline. Incomplete training data, 
+These proofs underline that even architectural improvements, larger datasets or post-hoc detection can only reduce but never fully eliminate hallucination. Even though Barnajee et al. primarly describes factual inconsistencies and therefore extrinsic hallucination the arguments still applies for intrinsic hallucionations, albeit in a slightly different form. As intrinsic hallucination evaluatues the faithfulness of an input in comparission to an output detecting such inconsistencies still requires reliable intent interpretation, accurate retrival of relevant source segments and first and foremost stable semantic comparisons between both texts. All of these properties are subject to uncertainty and if they cannot be entirely guaranteed due to the probabilistic nature of LLMs, evaluations can never be fully faithful. Even if the task is limited to only internal consistencies, the evaluation process itself remains grounded in probabilistic modelling and is therefore as shown in (\cite{Banerjee2024LLMsHallucinate}, 2024, p.20) mathematically unable to ensure perfect reliability.
+
+
 
 % Gute zusammenfassung
 \subsection{Conlusion LLMs for detection}
@@ -168,7 +216,7 @@ Therefore, based  the survey’s framework, LLMs should not be viewed as autonom
 %
 
 \subsection{Why is detection so challenging?}
-- Inter_annotation disagreement
+
 
 \section{Diagnosis instead of detection}
 As shown in section (Approaches) all approaches presented attempt to classify the output by either stating a probability or discrete label. However as (Halluzination subjecktiv) discussed labelling hallucination is not trivial and even humans do not always agree. While a single classification label can flag an erroreos output, it fails to give the full picture. It is thereby neither clear how the Model or System arrived at that decision and in the case of LLMs what reasoning lead to it nor is it clear which parts of the output causes the model to flag it as intrinsic hallucination. Operationalizing this task as a classification problem does not give the fine-grained feedback which would be essential for automated model correction or human guided developement. Similar to a medical diagnosis, a robust diagnostic framework should not mererly determine if an issue is present but also provide deeper insight aswell as its unterlying causes. Building upon this idea the paper (\cite{liu2025detection}, 2025) proposes to expand the hallucination detection task to a Diagnosis task. The Hallucinations diagnosis modell should therefore have the ability to examine the task across four dimensions. 
@@ -229,9 +277,6 @@ measured.
 % ====================
 
 \appendix
-
-\chapter{Zusätzliche Materialien}
-
 
 \printbibliography
 
