@@ -20,3 +20,201 @@ Das Generalisierungsproblem: Orgad et al. zeigen, dass Fehlerdetektoren, die auf
 Das Konfidenzproblem: Ein entscheidendes Signal in der Halluzinationsdetektion ist die eigene interne Unsicherheit des Modells — durch Analyse von Token-Level-Wahrscheinlichkeiten, Entropie und Konfidenz-Kalibrierung können Outputs identifiziert werden, bei denen das Modell unsicher ist. arXiv
 
 LLMs sind für die Erkennung intrinsischer Halluzinationen begrenzt geeignet — und zwar aus strukturellen, nicht nur technischen Gründen. Die vielversprechendste Richtung ist die Nutzung interner Repräsentationen (Probing-Klassifikatoren auf Hidden States), da das Modell intern tatsächlich mehr "weiß" als es zeigt. Aber auch hier gilt: Der Detektor ist nicht universell, generalisiert schlecht, und kann das Grundproblem — das Banerjee et al. mathematisch bewiesen haben — nicht vollständig lösen. Ein LLM, das sich selbst auf Halluzinationen überprüft, ist letztlich ein formales System, das versucht, sein eigenes Wahrheitsprädikat zu definieren — genau das, was Tarski als unmöglich bewiesen hat.
+
+
+Banerjee, S., Agarwal, A., & Singla, S. (2024). LLMs Will Always Hallucinate, and We Need to Live With This. arXiv:2409.05746.
+
+
+
+1. Einleitung
+
+1.1 Problemstellung — Warum ist Halluzinationserkennung wichtig? (Misinformation, kritische Anwendungen)
+1.2 Detection vs. Mitigation — Warum reicht Mitigation allein nicht aus?
+1.3 Das Seedpaper als Ausgangspunkt — Kurze Einführung in Gogoulou et al. (2025)
+1.4 These und Aufbau der Arbeit — Explizite Formulierung der Forschungsfrage + Roadmap
+
+Ziel: Leser versteht nach Section 1, warum das Thema relevant ist und wohin die Arbeit führt.
+
+2. Theoretische Grundlagen
+
+2.1 Halluzination — Definition und Einordnung
+
+Allgemeine Definition
+Intrinsisch vs. Extrinsisch
+
+
+2.2 Faithfulness, Factuality und Entailment
+
+Begriffsabgrenzung
+Warum Entailment die richtige Linse für intrinsische Halluzination ist
+
+
+2.3 Intrinsische Halluzination als nicht-triviales Problem
+
+Empirisch: Inter-Annotator-Disagreement (JUDGE-BENCH)
+Theoretisch: Formale Grenzen (Banarjee — hier musst du die Quelle noch vervollständigen)
+Konsequenz: Detection ist kein einfaches Klassifikationsproblem
+
+
+
+Ziel: Theoretisches Fundament legen. Die Nicht-Trivialität motiviert, warum es überhaupt schwierig ist — für Menschen UND Modelle.
+
+3. Das Seedpaper: Methodik und Ergebnisse
+
+3.1 Aufgabenformulierung als Entailment-Problem
+
+Kontrastives Setup (hyp1 vs. hyp2)
+HalluciGen-Datensatz (PG und MT)
+
+
+3.2 Untersuchte Faktoren
+
+Modellgröße, Instruction Tuning, Prompt-Sprache, Prompt-Formulierung
+
+
+3.3 Ergebnisse
+
+LLM-Performance variiert stark
+NLI-Baseline schlägt LLMs im Paraphrase-Szenario
+Keiner der vier Faktoren ist ein zuverlässiger Prädiktor
+
+
+3.4 Zwischenfazit für die These
+
+LLMs sind bedingt geeignet — aber weder universell noch überlegen
+
+
+
+Ziel: Seedpaper präzise darstellen und bereits erste Antwort auf die These andeuten.
+
+4. Alternative Ansätze zur intrinsischen Halluzinationserkennung
+
+4.1 Entailment-basierte Ansätze (NLI)
+
+Stärken: direkt auf Konsistenz ausgerichtet
+Schwächen: Granularitätsproblem (Mishra et al.)
+
+
+4.2 Self-Consistency und Uncertainty-basierte Methoden
+
+SelfCheckGPT (Manakul et al.)
+Semantic Entropy (Farquhar et al.)
+Schwäche: Confidence ≠ Faithfulness
+
+
+4.3 Embedding-basierte Methoden
+
+Similarity-based, Gradient-based
+Stärke für MT und PG, aber keine Kausalität
+
+
+4.4 Prompt-basierte Ansätze (LLM-as-Judge)
+
+Flexibilität als Vorteil
+Abhängigkeit von Modell und Prompt als Schwäche
+
+
+4.5 Vergleichende Einordnung
+
+Welche Methode eignet sich wofür?
+Warum ist Entailment für intrinsische Halluzination besonders prinzipiell?
+
+
+
+Ziel: Jeden Ansatz nicht nur beschreiben, sondern explizit fragen: Wie schlägt er sich gegenüber LLMs? Was kann er besser, was schlechter?
+
+5. Sind LLMs grundsätzlich für diese Aufgabe geeignet?
+(Das ist dein Kernkapitel — hier steht deine eigene Argumentation)
+
+5.1 LLM-as-Judge: Chancen
+
+Semantisches Reasoning, Sprachgeneralisierung, keine Feinabstimmung nötig
+Skalierbarkeit gegenüber menschlichen Annotatoren
+
+
+5.2 Systematische Schwächen von LLMs als Detektoren
+
+LLMs können selbst halluzinieren → rekursives Problem
+Bias gegenüber eigenen Generierungen (JUDGE-BENCH: Korrelation mit Non-Experts)
+Oberflächliche Plausibilität vs. echte Faithfulness
+Prompt-Sensitivität als Stabilitätsproblem
+
+
+5.3 Theoretische Grenzen
+
+Hier Banarjee et al. einbauen (formale Unentscheidbarkeit / Grenzen)
+LLMs als probabilistische Approximatoren, nicht als Wahrheitsdetektoren
+
+
+5.4 Welche Modelleigenschaften sind entscheidend?
+
+Instruction Tuning: hilft, aber nicht universell (Seedpaper)
+Modellgröße: inkonsistenter Effekt
+Multilingualität: wichtig für MT, aber nicht hinreichend
+Fazit: Kein einzelnes Merkmal ist ein zuverlässiger Prädiktor
+
+
+Ziel: Deine eigene, argumentativ fundierte Antwort auf die These. Nicht nur referieren — bewerten.
+
+6. Von Detection zu Diagnosis: Ein Ausblick
+
+6.1 Grenzen des Klassifikationsansatzes
+
+Label allein gibt keine kausale Erklärung
+Kein Feedback für Modellverbesserung
+
+
+6.2 Das Diagnosis-Framework (Liu et al. 2025)
+
+Detection → Localization → Explainability → Mitigation
+
+
+6.3 Implikationen für LLMs
+
+Wo könnten LLMs in diesem Framework sinnvoll eingesetzt werden?
+Hybridansätze: LLM + NLI
+
+Ziel: Zeigen, dass Detection nur ein erster Schritt ist — und die Diskussion nach vorne öffnen.
+
+7. Fazit
+
+Zusammenfassung der These-Antwort in 3–4 Sätzen
+Intrinsische Halluzination als Konsistenzproblem → Entailment-Ansätze prinzipiell am geeignetsten
+LLMs: bedingt geeignet, nicht absolut zuverlässig
+Offene Fragen und Forschungsperspektiven (z.B. Hybrid-Modelle, annotationsarme Settings)
+
+
+
+
+
+
+
+
+Another important finding from the JUDGE-BENCH Paper is that LLM judges correlate more strongly with non-expert annotations rather that with expert judgments (\cite{Bavaresco2025JudgeBench}, S. 241). The authors offer an unsupported interpretation that non-experts may rely more on surface level features, whereas expert judges apply stricter criteria. Believing this thesis this discrepancy could raise concerns whether LLMs truly capture faithfulness or rather approximate surface believablity. However this claim requires more studying.
+
+
+part intrinsisch vs Extrinsisch
+\newline
+Due to these fundamental differences it is necessary to differentiate and develop different methods and metrics. While these categorizations are the broadly shared, the definitions vary from task to task. For example, in abstractive summarization the source is considered the input that the model is supposed to summarize, whereas in a data-to-text the source is considered to be the knowledge-base of the model. Additionally, can the tolerance, what is considered hallucination, change from task to task.(\cite{Ji2023HallucinationSurvey}, S.5). Tolerance for hallucinations is very low in summarization and data-to-text tasks because faithfulness to the source is crucial. However, dialogue systems allow relatively higher tolerance, since user engagement and conversational quality are also important goals, especially in open-domain settings.
+
+
+prompt based approaches
+\subsection{Prompt-Based LLM Detection}
+Prompt-based detection, as used in the seed paper, uses LLMs directly as evaluators by instructing them to assess the faithfulness of a given output. Its primary advantage is is flexibility. No additional training is required, and the approach generalizes across tasks and languages. As \cite{Gogoulou2025LLMHallucinationDetection} demonstrate, well-prompted LLMs can perform competitive detection in a contrastive setting. However, as discussed in the previous section, this approach is subject to substantial prompt sensitivity, model-specific inconsistencies, and performance inflation due to the contrastive setup. The effectiveness of prompt-based detection therefore depends heavily on conditions that cannot be guaranteed in deployment.
+
+
+
+
+
+
+
+
+
+
+
+
+
+todo 
+    - summary
+
+
